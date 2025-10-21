@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Bookings</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .admin-card { padding:18px; text-align:left; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th,td { padding:8px 10px; border-bottom:1px solid rgba(0,0,0,0.06); text-align:left; }
+    th { color:#6a276a; }
+    .small { font-size:0.9rem; color:rgba(58,43,58,0.7); }
+    .controls { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+    input.auth { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); width:220px; }
+    button.action { padding:8px 12px; border-radius:8px; background:var(--pink-2); color:white; border:none; cursor:pointer; }
+    button.secondary { background: #ffd24a; color:#3a2b3a; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="card admin-card">
+      <h1>Admin — Bookings</h1>
+      <div class="small">Log in with the admin username & password to view stored bookings (localStorage).</div>
+
+      <div class="controls" id="loginControls">
+        <input id="username" class="auth" placeholder="Username" />
+        <input id="password" type="password" class="auth" placeholder="Password" />
+        <button id="loginBtn" class="action">Log in</button>
+      </div>
+
+      <div id="status" class="small"></div>
+
+      <div id="content" style="display:none;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <button id="refreshBtn" class="action">Refresh</button>
+          <button id="exportBtn" class="action secondary">Export CSV</button>
+          <button id="clearBtn" class="action secondary">Clear all</button>
+          <button id="logoutBtn" class="action" style="margin-left:auto;background:#9fffbe;color:#043b18">Logout</button>
+        </div>
+        <div id="listContainer"></div>
+      </div>
+
+      <p style="margin-top:12px"><a href="index.html">Back to site</a></p>
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
