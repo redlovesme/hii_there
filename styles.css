@@ -1,0 +1,150 @@
+:root{
+  --pink-1: #ffd1e8;
+  --pink-2: #ff7fbf;
+  --yellow-1: #fff5b1;
+  --yellow-2: #ffd24a;
+  --accent: #ff5da2;
+  --text: #3a2b3a;
+  --glass: rgba(255,255,255,0.6);
+  --radius: 14px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+body{
+  background: linear-gradient(135deg,var(--pink-1), var(--yellow-1));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  color:var(--text);
+}
+
+.page{width:100%;max-width:760px}
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75));
+  border-radius:var(--radius);
+  padding:36px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  text-align:center;
+  position:relative;
+}
+
+h1{
+  font-size:2.2rem;
+  margin:6px 0 20px;
+  color:var(--accent);
+  letter-spacing:0.6px;
+}
+
+/* Buttons container centered */
+.buttons{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  height:64px; /* gives space for evasive moving */
+}
+
+/* Shared button styles */
+.btn{
+  border: none;
+  padding:12px 22px;
+  font-size:1rem;
+  border-radius:999px;
+  cursor:pointer;
+  transition:transform 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Yes button */
+.btn-yes{
+  background: linear-gradient(180deg,var(--pink-2),#ff5da2);
+  color:white;
+}
+
+/* No button starts inline, will be moved by JS (position:fixed when roaming) */
+.btn-no{
+  background: linear-gradient(180deg,var(--yellow-2),#ffbd2b);
+  color:#3a2b3a;
+}
+
+/* small form */
+.date-form{
+  margin-top:18px;
+  display:flex;
+  gap:12px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.date-form label{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size:0.95rem;
+}
+
+input[type="date"], input[type="time"]{
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(0,0,0,0.08);
+  background:var(--glass);
+}
+
+/* confirm */
+.btn-confirm{
+  background: linear-gradient(180deg,#9fffbe,#2fd66b);
+  color:#043b18;
+  margin-top:8px;
+}
+
+/* result messages */
+.result{
+  margin-top:16px;
+  min-height:28px;
+  font-weight:600;
+  color:var(--accent);
+}
+
+/* helper text */
+.hint{margin:0 0 6px 0;font-size:0.9rem;color:#5c3a5c}
+.form-msg{color:#b00020;margin-top:6px}
+
+/* small footer line */
+.footer-note{
+  margin-top:18px;
+  font-size:0.8rem;
+  color:rgba(58,43,58,0.65);
+}
+
+/* meeting image styling (used by meeting.html) */
+.meeting-image{
+  max-width:90%;
+  height:auto;
+  border-radius:12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display:block;
+  margin:12px auto;
+}
+
+/* layout helpers for meeting page */
+.card.stretch {
+  display:flex;
+  flex-direction:column;
+  height: min(80vh, 720px); /* makes it tall enough to place image at bottom */
+}
+.meeting-top { margin-bottom: 12px; }
+.meeting-bottom { margin-top: auto; }
+
+/* hidden helper */
+.hidden{display:none}
+
+/* responsive tweaks */
+@media (max-width:420px){
+  .card{padding:20px}
+  h1{font-size:1.6rem}
+  .buttons{height:80px}
+}

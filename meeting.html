@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Be ready — Meeting</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .meeting-card{ padding:28px; text-align:center; border-radius:12px; margin-top:12px;}
+    .info-text{ font-size:1.1rem; color:#6a276a; margin-top:8px; font-weight:600; }
+    .small-note { margin-top:10px; color: rgba(58,43,58,0.65); font-size:0.95rem; }
+    /* Ensure the image sits at the bottom of the card */
+    .meeting-bottom { margin-top: auto; text-align:center; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- .card.stretch uses CSS in styles.css to make the card tall and use flex-column -->
+    <div class="card stretch meeting-card">
+      <div class="meeting-top">
+        <h1 id="title">Be ready at the scheduled time</h1>
+        <div id="info" class="info-text"></div>
+        <div class="small-note">Keep this page open — it will show the scheduled time above.</div>
+      </div>
+
+      <!-- meeting-bottom is pushed to bottom by margin-top:auto -->
+      <div class="meeting-bottom">
+        <!-- Put the picture the user provided in the same folder as meeting-image.png -->
+        <img src="meeting-image.png" alt="Cute couple holding hands" class="meeting-image" />
+        <p style="margin-top:12px"><a id="back" href="index.html">Back</a></p>
+      </div>
+    </div>
+  </main>
+  <script src="meeting.js"></script>
+</body>
+</html>

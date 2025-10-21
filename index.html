@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Date With Me?</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page">
+    <div class="card" id="card">
+      <h1 id="prompt">Date with me?</h1>
+
+      <div class="buttons" id="buttons">
+        <button id="yesBtn" class="btn btn-yes">Yes</button>
+        <button id="noBtn" class="btn btn-no" aria-label="No button">No</button>
+      </div>
+
+      <div id="result" class="result" aria-live="polite"></div>
+
+      <form id="dateForm" class="date-form hidden" onsubmit="return false;">
+        <p class="hint">Pick a date (Thursdays, Fridays and weekends unavailable) and a time:</p>
+        <label>
+          Date:
+          <input type="date" id="dateInput" required />
+        </label>
+        <label>
+          Time:
+          <input type="time" id="timeInput" required />
+        </label>
+        <div class="form-actions">
+          <button id="confirmBtn" class="btn btn-confirm">Confirm</button>
+        </div>
+        <p id="formMsg" class="form-msg" aria-live="assertive"></p>
+      </form>
+
+      <p class="footer-note">Made with love ♥</p>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
