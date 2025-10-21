@@ -1,123 +1,128 @@
-/* Client-only front-end: no admin, no Google account, no backend.
-   Forever-evasive "No" button, date restrictions (Thu/Fri/Sat/Sun unavailable).
-   After Confirm: show "Be ready at [date/time]" then open meeting.html with ?when=ISO_DATETIME.
-*/
+// Simple client-side admin (improved): waits for DOM ready and provides clearer errors.
+// Credentials (hardcoded):
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'pinklover2025';
 
-/* DOM elements */
-const yesBtn = document.getElementById('yesBtn');
-const noBtn = document.getElementById('noBtn');
-const result = document.getElementById('result');
-const dateForm = document.getElementById('dateForm');
-const dateInput = document.getElementById('dateInput');
-const timeInput = document.getElementById('timeInput');
-const confirmBtn = document.getElementById('confirmBtn');
-const formMsg = document.getElementById('formMsg');
-const buttonsContainer = document.getElementById('buttons');
+document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('loginBtn');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const status = document.getElementById('status');
+  const content = document.getElementById('content');
+  const listContainer = document.getElementById('listContainer');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const loginControls = document.getElementById('loginControls');
 
-/* Evasive NO button behavior (forever evasive) */
-function getRandomPositionForButton(elWidth = 100, elHeight = 40) {
-  const padding = 12;
-  const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-  const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-
-  const maxX = Math.max(padding, vw - elWidth - padding);
-  const maxY = Math.max(padding + 60, vh - elHeight - padding);
-
-  const x = Math.floor(Math.random() * maxX);
-  const y = Math.floor(Math.random() * maxY);
-
-  return {x, y};
-}
-
-function moveNoButton() {
-  const rect = noBtn.getBoundingClientRect();
-  const { x, y } = getRandomPositionForButton(rect.width, rect.height);
-
-  noBtn.style.position = 'fixed';
-  noBtn.style.left = `${x}px`;
-  noBtn.style.top = `${y}px`;
-  noBtn.style.transform = 'translate(0,0)';
-  noBtn.style.transition = 'left 220ms ease, top 220ms ease, transform 160ms ease';
-}
-
-noBtn.addEventListener('mouseenter', () => moveNoButton());
-buttonsContainer.addEventListener('mousemove', (e) => {
-  const nbRect = noBtn.getBoundingClientRect();
-  const distanceX = Math.abs(e.clientX - (nbRect.left + nbRect.width / 2));
-  const distanceY = Math.abs(e.clientY - (nbRect.top + nbRect.height / 2));
-  const closeness = 80;
-  if (distanceX < closeness && distanceY < closeness) moveNoButton();
-});
-noBtn.addEventListener('click', () => {
-  result.textContent = "Nope — not today 😉";
-  moveNoButton();
-});
-noBtn.addEventListener('focus', () => moveNoButton());
-
-/* YES button behavior */
-yesBtn.addEventListener('click', () => {
-  result.textContent = "Yay! 🎉";
-  dateForm.classList.remove('hidden');
-  dateForm.scrollIntoView({behavior: 'smooth', block: 'center'});
-});
-
-/* Date constraints: not available Thu(4), Fri(5), Sat(6), Sun(0) */
-/* Ensure date min is tomorrow */
-function setMinDateToTomorrow(){
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const yyyy = tomorrow.getFullYear();
-  const mm = String(tomorrow.getMonth() + 1).padStart(2,'0');
-  const dd = String(tomorrow.getDate()).padStart(2,'0');
-  dateInput.min = `${yyyy}-${mm}-${dd}`;
-}
-setMinDateToTomorrow();
-
-function validateDateValue(dateStr) {
-  if (!dateStr) return false;
-  const parts = dateStr.split('-').map(Number);
-  const dt = new Date(parts[0], parts[1] - 1, parts[2]);
-  const day = dt.getDay();
-  if (day === 4 || day === 5 || day === 6 || day === 0) {
-    return false;
-  }
-  return true;
-}
-
-dateInput.addEventListener('change', () => {
-  formMsg.textContent = '';
-  if (!validateDateValue(dateInput.value)) {
-    formMsg.textContent = "That date falls on Thursday, Friday or weekend — please pick another day.";
-    dateInput.value = '';
-  }
-});
-
-/* Confirm: show "Be ready at [date/time]" then redirect to meeting page (client-only). */
-confirmBtn.addEventListener('click', (e) => {
-  formMsg.textContent = '';
-  const dateVal = dateInput.value;
-  const timeVal = timeInput.value;
-  if (!dateVal || !timeVal) {
-    formMsg.textContent = "Please choose both a date and a time.";
-    return;
-  }
-  if (!validateDateValue(dateVal)) {
-    formMsg.textContent = "Selected date isn't allowed (Thursday, Friday or weekend).";
+  if (!loginBtn || !usernameInput || !passwordInput || !status) {
+    console.error('admin.js: Required DOM elements not found. Make sure admin.html includes the correct IDs and admin.js is loaded after the HTML or use DOMContentLoaded (this script).');
+    status.textContent = 'Script error: missing elements. Check console.';
     return;
   }
 
-  const iso = `${dateVal}T${timeVal}:00`;
-  const humanDate = new Date(iso).toLocaleString([], {
-    weekday: 'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'
-  });
+  function loadBookings() {
+    try {
+      const raw = localStorage.getItem('dateBookings');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      console.error('Failed to parse bookings from localStorage', e);
+      return [];
+    }
+  }
 
-  // Immediately tell the visitor to be ready at the chosen date/time
-  result.textContent = `Be ready at ${humanDate}. Opening meeting page...`;
+  function renderList(items) {
+    if (!items || items.length === 0) {
+      listContainer.innerHTML = `<div class="small">No bookings found.</div>`;
+      return;
+    }
+    const rows = items.slice().reverse(); // newest first
+    let html = '<table><thead><tr><th>Saved at</th><th>Datetime (ISO)</th><th>Readable</th><th>Origin</th></tr></thead><tbody>';
+    rows.forEach(r => {
+      html += `<tr>
+        <td>${escapeHtml(r.savedAt||'')}</td>
+        <td>${escapeHtml(r.datetime||'')}</td>
+        <td>${escapeHtml(r.human||'')}</td>
+        <td>${escapeHtml(r.origin||'')}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    listContainer.innerHTML = html;
+  }
 
-  // Then navigate to the meeting page (gives user a moment to read the message)
-  const encoded = encodeURIComponent(iso);
-  setTimeout(() => {
-    window.location.href = `meeting.html?when=${encoded}`;
-  }, 900);
+  function escapeHtml(s) {
+    if (!s) return '';
+    return s.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function onLogin() {
+    const u = (usernameInput.value || '').trim();
+    const p = (passwordInput.value || '').trim();
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      status.textContent = 'Logged in.';
+      loginControls.style.display = 'none';
+      content.style.display = 'block';
+      refresh();
+    } else {
+      status.textContent = 'Bad credentials. Username and password are case-sensitive.';
+      console.warn('Failed admin login attempt for user:', u);
+    }
+  }
+
+  function refresh() {
+    const items = loadBookings();
+    renderList(items);
+    status.textContent = `Loaded ${items.length} booking(s).`;
+  }
+
+  function exportCSV() {
+    const items = loadBookings();
+    if (!items || items.length === 0) {
+      status.textContent = 'No bookings to export.';
+      return;
+    }
+    const rows = [['SavedAt','DatetimeISO','HumanReadable','Origin']];
+    items.forEach(it => rows.push([it.savedAt||'', it.datetime||'', it.human||'', it.origin||'']));
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bookings.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    status.textContent = 'Export started.';
+  }
+
+  function clearAll() {
+    if (!confirm('Clear all saved bookings from localStorage? This cannot be undone.')) return;
+    localStorage.removeItem('dateBookings');
+    refresh();
+    status.textContent = 'All bookings cleared.';
+  }
+
+  function logout() {
+    content.style.display = 'none';
+    loginControls.style.display = 'flex';
+    usernameInput.value = '';
+    passwordInput.value = '';
+    status.textContent = 'Logged out.';
+  }
+
+  // Wire up events
+  loginBtn.addEventListener('click', onLogin);
+  refreshBtn && refreshBtn.addEventListener('click', refresh);
+  exportBtn && exportBtn.addEventListener('click', exportCSV);
+  clearBtn && clearBtn.addEventListener('click', clearAll);
+  logoutBtn && logoutBtn.addEventListener('click', logout);
+
+  // allow Enter to submit login
+  passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') onLogin(); });
+  usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') onLogin(); });
+
+  // helpful console message
+  console.log('Admin script loaded. Use username "admin" and password "pinklover2025".');
 });
